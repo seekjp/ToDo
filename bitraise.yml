@@ -1,0 +1,34 @@
+---
+format_version: '13'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: ios
+app:
+  envs:
+  - FASTLANE_XCODE_LIST_TIMEOUT: '120'
+  - FASTLANE_WORK_DIR: "."
+    opts:
+      is_expand: false
+  - FASTLANE_LANE: ios release_app
+    opts:
+      is_expand: false
+workflows:
+  primary:
+    steps:
+    - activate-ssh-key@4: {}
+    - git-clone@8: {}
+    - certificate-and-profile-installer@1: {}
+    - fastlane@3:
+        inputs:
+        - lane: "$FASTLANE_LANE"
+        - work_dir: "$FASTLANE_WORK_DIR"
+        - enable_cache: 'no'
+    - deploy-to-bitrise-io@2: {}
+    triggers:
+      push:
+      - branch: main
+      pull_request:
+      - source_branch: "*"
+meta:
+  bitrise.io:
+    stack: osx-xcode-edge
+    machine_type_id: g2-m1.4core
